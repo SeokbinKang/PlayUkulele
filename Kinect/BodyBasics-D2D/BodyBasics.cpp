@@ -64,6 +64,7 @@ CBodyBasics::CBodyBasics() :
     {
         m_fFreq = double(qpf.QuadPart);
     }
+	 AllocConsole();
 }
   
 
@@ -315,8 +316,13 @@ HRESULT CBodyBasics::InitializeDefaultSensor()
 /// <param name="nBodyCount">body data count</param>
 /// <param name="ppBodies">body data in frame</param>
 /// </summary>
+float rhand_dist=0;
+float lhand_dist=0;
+bool rhand_onrec=false;
+int lastCode=-1;
 void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 {
+	
     if (m_hWnd)
     {
         HRESULT hr = EnsureDirect2DResources();
@@ -335,14 +341,16 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
             for (int i = 0; i < nBodyCount; ++i)
             {
                 IBody* pBody = ppBodies[i];
+
                 if (pBody)
                 {
-					mainPerson=i;
-                    BOOLEAN bTracked = false;
+				    BOOLEAN bTracked = false;
                     hr = pBody->get_IsTracked(&bTracked);
 
                     if (SUCCEEDED(hr) && bTracked)
                     {
+							mainPerson=i;
+                
                         Joint joints[JointType_Count]; 
                         D2D1_POINT_2F jointPoints[JointType_Count];
                         HandState leftHandState = HandState_Unknown;
@@ -369,13 +377,15 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
             }
 			if(mainPerson!=-1) {
 				IBody* pBody = ppBodies[mainPerson];
-				 if (pBody)
+			
+				if (pBody)
                 {
 					 BOOLEAN bTracked = false;
                     hr = pBody->get_IsTracked(&bTracked);
-
+					
                     if (SUCCEEDED(hr) && bTracked)
                     {
+						
 						Joint joints[JointType_Count]; 
                         D2D1_POINT_2F jointPoints[JointType_Count];
                         HandState leftHandState = HandState_Unknown;
@@ -386,13 +396,38 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 						 hr = pBody->GetJoints(_countof(joints), joints);
 						 if (SUCCEEDED(hr))
                         {
-							
+						   for (int j = 0; j < _countof(joints); ++j)
+                            {
+                                jointPoints[j] = BodyToScreen(joints[j].Position, width, height);
+                            }
+	
 							float head_x =  jointPoints[JointType_Neck].x;
 							float head_y =  jointPoints[JointType_Neck].x;
 							float rHand_y = jointPoints[JointType_HandRight].y;
 							float lHand_x = jointPoints[JointType_HandLeft].x;
-							printf("head : %f %f \n rH-Y : %f \t lH-X : %f \n",head_x,head_y,rHand_y,lHand_x);
-
+							//printf("head : %f %f \n rH-Y : %f \t lH-X : %f \n",head_x,head_y,rHand_y,lHand_x);
+							bool playFlag=false;
+							int codeFlag=-1;
+							float rdist = head_y-rHand_y;
+							float ldist = head_x - lHand_x;
+							printf("%f\n",rdist);
+							if(!rhand_onrec && rdist<200){
+								rhand_onrec=true;
+								playFlag = true;
+							} else {
+								if(rdist>200) rhand_onrec=false;
+							}
+							int step = ldist / 70 ;
+							if(step>0) {
+								codeFlag=step;
+							}
+							if(codeFlag>4) codeFlag=4;
+							
+							if(playFlag) printf("Play!!!!!!!!!!!!!!!!!!!!!\n");
+							if(codeFlag>0 && codeFlag!=lastCode) {
+								printf("Change code : %d \n",codeFlag);
+								lastCode=codeFlag;
+							}
 
                         }
 
