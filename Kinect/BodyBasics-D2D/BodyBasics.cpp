@@ -8,7 +8,7 @@
 #include <strsafe.h>
 #include "resource.h"
 #include "BodyBasics.h"
-
+#include "SerialUtil.h"
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
 static const float c_InferredBoneThickness = 1.0f;
@@ -309,7 +309,21 @@ HRESULT CBodyBasics::InitializeDefaultSensor()
 
     return hr;
 }
+SerialUtil* su;
+void CBodyBasics::setupSerial() {
+	su = new SerialUtil();
+	while (!SerialUtil::SP->IsConnected())
+	{
+		printf("Connecting to Serial \n");
+		Sleep(100);
+			//string readString = su->read();
+		/*
+		kk=waitKey(500);
+			if(kk=='q') break;
+		*/
+	}
 
+}
 /// <summary>
 /// Handle new body data
 /// <param name="nTime">timestamp of frame</param>

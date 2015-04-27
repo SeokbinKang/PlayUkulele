@@ -90,6 +90,7 @@ private:
     /// <returns>S_OK on success, otherwise failure code</returns>
     HRESULT                 InitializeDefaultSensor();
     
+	void setupSerial();
     /// <summary>
     /// Handle new body data
     /// <param name="nTime">timestamp of frame</param>
