@@ -1,0 +1,41 @@
+  using System.IO.Ports;
+    using System.Threading;
+
+ private SerialPort _arduinoSerial;
+       
+
+     //TODO : initialize serial
+            int baudrate=115200;
+            this._arduinoSerial = new SerialPort();
+            this._arduinoSerial.PortName = "COM3";
+            this._arduinoSerial.BaudRate = baudrate;
+            this._arduinoSerial.Open();
+            Thread readThread = new Thread(Read);
+            readThread.Start();
+
+
+ public  void Read()
+        {
+            while (true)
+            {
+                try
+                {
+                    string message = this._arduinoSerial.ReadLine();
+                    Console.WriteLine(message);
+
+                }
+                catch (TimeoutException) { }
+            }
+        }
+
+
+
+ if (!tracked)
+                            {
+                                tracked = true;
+                                Point rhand = jointPoints[JointType.HandRight];
+                                int xpos = (int)rhand.X;
+                                int index = xpos / 50;
+                                this._arduinoSerial.Write(index.ToString());
+
+                            }
