@@ -330,12 +330,14 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
             GetClientRect(GetDlgItem(m_hWnd, IDC_VIDEOVIEW), &rct);
             int width = rct.right;
             int height = rct.bottom;
-
+			//take 0-user
+			int mainPerson = -1;
             for (int i = 0; i < nBodyCount; ++i)
             {
                 IBody* pBody = ppBodies[i];
                 if (pBody)
                 {
+					mainPerson=i;
                     BOOLEAN bTracked = false;
                     hr = pBody->get_IsTracked(&bTracked);
 
@@ -365,6 +367,43 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                     }
                 }
             }
+			if(mainPerson!=-1) {
+				IBody* pBody = ppBodies[mainPerson];
+				 if (pBody)
+                {
+					 BOOLEAN bTracked = false;
+                    hr = pBody->get_IsTracked(&bTracked);
+
+                    if (SUCCEEDED(hr) && bTracked)
+                    {
+						Joint joints[JointType_Count]; 
+                        D2D1_POINT_2F jointPoints[JointType_Count];
+                        HandState leftHandState = HandState_Unknown;
+                        HandState rightHandState = HandState_Unknown;
+
+                        pBody->get_HandLeftState(&leftHandState);
+                        pBody->get_HandRightState(&rightHandState);
+						 hr = pBody->GetJoints(_countof(joints), joints);
+						 if (SUCCEEDED(hr))
+                        {
+							
+							float head_x =  jointPoints[JointType_Neck].x;
+							float head_y =  jointPoints[JointType_Neck].x;
+							float rHand_y = jointPoints[JointType_HandRight].y;
+							float lHand_x = jointPoints[JointType_HandLeft].x;
+							printf("head : %f %f \n rH-Y : %f \t lH-X : %f \n",head_x,head_y,rHand_y,lHand_x);
+
+
+                        }
+
+
+					}
+
+				 }
+
+			}
+			
+
 
             hr = m_pRenderTarget->EndDraw();
 
