@@ -306,7 +306,7 @@ HRESULT CBodyBasics::InitializeDefaultSensor()
         SetStatusMessage(L"No ready Kinect found!", 10000, true);
         return E_FAIL;
     }
-
+	setupSerial();
     return hr;
 }
 SerialUtil* su;
@@ -323,6 +323,20 @@ void CBodyBasics::setupSerial() {
 		*/
 	}
 
+}
+void CBodyBasics::sendSerial(bool play_, int code_) {
+	char t[100];
+	if(!play_ && code_==-1) return ;
+	int play_i = 0;
+	if(play_) play_i=1;
+	if(code_==-1) code_=0;
+	sprintf(t,"%d %d\n",play_i,code_);
+	string ts=t;
+	if(SerialUtil::SP->IsConnected()){
+		string readString = su->read();
+		printf("%s\n",readString.c_str());
+		su->write(ts);
+	}
 }
 /// <summary>
 /// Handle new body data
@@ -424,7 +438,7 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 							int codeFlag=-1;
 							float rdist = head_y-rHand_y;
 							float ldist = head_x - lHand_x;
-							printf("%f\n",rdist);
+							//printf("%f\n",rdist);
 							if(!rhand_onrec && rdist<200){
 								rhand_onrec=true;
 								playFlag = true;
@@ -441,8 +455,8 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 							if(codeFlag>0 && codeFlag!=lastCode) {
 								printf("Change code : %d \n",codeFlag);
 								lastCode=codeFlag;
-							}
-
+							} else codeFlag=-1;
+							sendSerial(playFlag, codeFlag);
                         }
 
 

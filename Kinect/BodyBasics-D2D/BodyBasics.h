@@ -89,7 +89,7 @@ private:
     /// </summary>
     /// <returns>S_OK on success, otherwise failure code</returns>
     HRESULT                 InitializeDefaultSensor();
-    
+    void sendSerial(bool play_, int code_) ;
 	void setupSerial();
     /// <summary>
     /// Handle new body data

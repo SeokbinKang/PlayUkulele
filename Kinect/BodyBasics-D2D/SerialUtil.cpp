@@ -18,7 +18,7 @@ SerialUtil::SerialUtil()
 
 	clearedRX = false;
 
-	strcpy_s(port, "\\\\.\\COM61");		//default port is COM4
+	strcpy_s(port, "\\\\.\\COM12");		//default port is COM4
 	SP = new Serial(this->port);    // adjust as needed
 
 	if (SP->IsConnected())
@@ -70,7 +70,7 @@ void SerialUtil::write(string& str)
 		Sleep(10);
 		SP->WriteData(outgoingData, outgoingDataLength);
 		cout << "outgoingData:" << str << "\n";
-		if (SP->IsConnected())
+	/*	if (SP->IsConnected())
 		{
 			//check until the received string is eaual to the sent string OR it is equalto BAD_COMMAND ("-" sent by Arduino) OR whether it is an empty string("").
 			while ((receive_command.compare(str) != 0 && receive_command.compare("-") != 0) || receive_command.compare("") == 0)
@@ -91,6 +91,6 @@ void SerialUtil::write(string& str)
 		}
 		receive_command = "";
 		strcpy_s(incomingData, "\0");
-		Sleep(10);
+		Sleep(10);*/
 	}
 }
